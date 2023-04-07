@@ -253,11 +253,12 @@ class GxEPD2_BW : public GxEPD2_GFX_BASE_CLASS
         _buffer[i] = (_buffer[i] & (0xFF ^ (1 << (7 - x % 8))));
     }
 
-    void init(uint32_t serial_diag_bitrate = 0) // = 0 : disabled
+    void init(uint32_t serial_diag_bitrate = 0, BorderColor borderColor = BorderColor::WHITE) // = 0 : disabled
     {
       epd2.init(serial_diag_bitrate);
       _using_partial_mode = false;
       _current_page = 0;
+    _borderColor = borderColor;
       setFullWindow();
     }
 
@@ -267,11 +268,12 @@ class GxEPD2_BW : public GxEPD2_GFX_BASE_CLASS
     // NOTE: garbage will result on fast partial update displays, if initial full update is omitted after power loss
     // reset_duration = 10 is default; a value of 2 may help with "clever" reset circuit of newer boards from Waveshare 
     // pulldown_rst_mode true for alternate RST handling to avoid feeding 5V through RST pin
-    void init(uint32_t serial_diag_bitrate, bool initial, uint16_t reset_duration = 10, bool pulldown_rst_mode = false)
+    void init(uint32_t serial_diag_bitrate, bool initial, uint16_t reset_duration = 10, bool pulldown_rst_mode = false, BorderColor borderColor = BorderColor::WHITE)
     {
       epd2.init(serial_diag_bitrate, initial, reset_duration, pulldown_rst_mode);
       _using_partial_mode = false;
       _current_page = 0;
+    _borderColor = borderColor;
       setFullWindow();
     }
 
@@ -707,6 +709,7 @@ class GxEPD2_BW : public GxEPD2_GFX_BASE_CLASS
     int16_t _current_page;
     uint16_t _pages, _page_height;
     uint16_t _pw_x, _pw_y, _pw_w, _pw_h;
+    BorderColor _borderColor;
 };
 
 #endif
