@@ -345,9 +345,9 @@ void GxEPD2_290_T94_V2::_PowerOff()
 void GxEPD2_290_T94_V2::_InitDisplay()
 {
   if (_hibernating) _reset();
-  delay(10); // 10ms according to specs
+  _waitWhileBusy("_Init", 5);
   _writeCommand(0x12);  //SWRESET
-  delay(10); // 10ms according to specs
+  _waitWhileBusy("_Init", 5);
   _writeCommand(0x01); //Driver output control
   _writeData(0x27);
   _writeData(0x01);
@@ -355,7 +355,13 @@ void GxEPD2_290_T94_V2::_InitDisplay()
   _writeCommand(0x11); //data entry mode
   _writeData(0x03);
   _writeCommand(0x3C); //BorderWavefrom
+  if (_borderColor == BorderColor::BLACK) {
+
+  _writeData(0x00);
+  } else {
   _writeData(0x05);
+
+  }
   _writeCommand(0x21); //  Display update control
   _writeData(0x00);
   _writeData(0x80);
@@ -385,6 +391,7 @@ const unsigned char GxEPD2_290_T94_V2::lut_partial[] PROGMEM =
   0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
   0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x0, 0x0, 0x0,
 };
+
 
 void GxEPD2_290_T94_V2::_Init_Full()
 {
