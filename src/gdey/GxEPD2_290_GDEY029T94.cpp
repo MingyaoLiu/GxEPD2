@@ -365,7 +365,7 @@ void GxEPD2_290_GDEY029T94::_InitDisplay()
   _writeData(0x27);
   _writeData(0x01);
   _writeData(0x00);
-  _writeCommand(0x50); // BorderWavefrom
+  _writeCommand(0x3C); // BorderWavefrom
   _writeData(0x05);
   _writeCommand(0x21); //  Display update control
   _writeData(0x00);
