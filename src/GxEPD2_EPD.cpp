@@ -33,14 +33,21 @@ GxEPD2_EPD::GxEPD2_EPD(int16_t cs, int16_t dc, int16_t rst, int16_t busy, int16_
   _busy_callback_parameter = 0;
 }
 
-void GxEPD2_EPD::init(uint32_t serial_diag_bitrate, BorderColor borderColor)
+void GxEPD2_EPD::init(uint32_t serial_diag_bitrate, int borderColor)
 {
   init(serial_diag_bitrate, true, 10, false, borderColor);
 }
 
-void GxEPD2_EPD::init(uint32_t serial_diag_bitrate, bool initial, uint16_t reset_duration, bool pulldown_rst_mode, BorderColor borderColor)
+void GxEPD2_EPD::init(uint32_t serial_diag_bitrate, bool initial, uint16_t reset_duration, bool pulldown_rst_mode, int borderColor)
 {
-  _borderColor = BorderColor;
+      _borderColor = borderColor;
+      if (_borderColor == GxEPD_WHITE) {
+        _backgroundColor = _borderColor;
+        _foregroundColor = GxEPD_BLACK;
+      } else {
+        _backgroundColor = _borderColor;
+        _foregroundColor = GxEPD_WHITE;
+      }
   _initial_write = initial;
   _initial_refresh = initial;
   _pulldown_rst_mode = pulldown_rst_mode;

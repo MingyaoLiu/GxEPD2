@@ -253,12 +253,19 @@ class GxEPD2_BW : public GxEPD2_GFX_BASE_CLASS
         _buffer[i] = (_buffer[i] & (0xFF ^ (1 << (7 - x % 8))));
     }
 
-    void init(uint32_t serial_diag_bitrate = 0, BorderColor borderColor = BorderColor::WHITE) // = 0 : disabled
+    void init(uint32_t serial_diag_bitrate = 0, int borderColor = GxEPD_WHITE) // = 0 : disabled
     {
       epd2.init(serial_diag_bitrate);
       _using_partial_mode = false;
       _current_page = 0;
-    _borderColor = borderColor;
+      _borderColor = borderColor;
+      if (_borderColor == GxEPD_WHITE) {
+        _backgroundColor = _borderColor;
+        _foregroundColor = GxEPD_BLACK;
+      } else {
+        _backgroundColor = _borderColor;
+        _foregroundColor = GxEPD_WHITE;
+      }
       setFullWindow();
     }
 
@@ -268,12 +275,19 @@ class GxEPD2_BW : public GxEPD2_GFX_BASE_CLASS
     // NOTE: garbage will result on fast partial update displays, if initial full update is omitted after power loss
     // reset_duration = 10 is default; a value of 2 may help with "clever" reset circuit of newer boards from Waveshare 
     // pulldown_rst_mode true for alternate RST handling to avoid feeding 5V through RST pin
-    void init(uint32_t serial_diag_bitrate, bool initial, uint16_t reset_duration = 10, bool pulldown_rst_mode = false, BorderColor borderColor = BorderColor::WHITE)
+    void init(uint32_t serial_diag_bitrate, bool initial, uint16_t reset_duration = 10, bool pulldown_rst_mode = false, int borderColor = GxEPD_WHITE)
     {
       epd2.init(serial_diag_bitrate, initial, reset_duration, pulldown_rst_mode);
       _using_partial_mode = false;
       _current_page = 0;
-    _borderColor = borderColor;
+      _borderColor = borderColor;
+      if (_borderColor == GxEPD_WHITE) {
+        _backgroundColor = _borderColor;
+        _foregroundColor = GxEPD_BLACK;
+      } else {
+        _backgroundColor = _borderColor;
+        _foregroundColor = GxEPD_WHITE;
+      }
       setFullWindow();
     }
 
@@ -363,7 +377,7 @@ class GxEPD2_BW : public GxEPD2_GFX_BASE_CLASS
 
     void firstPage()
     {
-      fillScreen(GxEPD_WHITE);
+      fillScreen(_backgroundColor);
       _current_page = 0;
       _second_phase = false;
     }
@@ -428,13 +442,13 @@ class GxEPD2_BW : public GxEPD2_GFX_BASE_CLASS
             if (epd2.hasFastPartialUpdate)
             {
               _second_phase = true;
-              fillScreen(GxEPD_WHITE);
+              fillScreen(_backgroundColor);
               return true;
             }
           }
           return false;
         }
-        fillScreen(GxEPD_WHITE);
+        fillScreen(_backgroundColor);
         return true;
       }
       else // full update
@@ -451,7 +465,7 @@ class GxEPD2_BW : public GxEPD2_GFX_BASE_CLASS
             {
               epd2.refresh(false); // full update after first phase
               _second_phase = true;
-              fillScreen(GxEPD_WHITE);
+              fillScreen(_backgroundColor);
               return true;
             }
             //else epd2.refresh(true); // partial update after second phase
@@ -459,7 +473,7 @@ class GxEPD2_BW : public GxEPD2_GFX_BASE_CLASS
           epd2.powerOff();
           return false;
         }
-        fillScreen(GxEPD_WHITE);
+        fillScreen(_backgroundColor);
         return true;
       }
     }
@@ -469,7 +483,7 @@ class GxEPD2_BW : public GxEPD2_GFX_BASE_CLASS
     {
       if (1 == _pages)
       {
-        fillScreen(GxEPD_WHITE);
+        fillScreen(_backgroundColor);
         drawCallback(pv);
         if (_using_partial_mode)
         {
@@ -507,7 +521,7 @@ class GxEPD2_BW : public GxEPD2_GFX_BASE_CLASS
             uint16_t dest_ye = gx_uint16_min(_pw_y + _pw_h, _pw_y + page_ye);
             if (dest_ye > dest_ys)
             {
-              fillScreen(GxEPD_WHITE);
+              fillScreen(_backgroundColor);
               drawCallback(pv);
               uint32_t offset = _reverse ? (_page_height - (dest_ye - dest_ys)) * _pw_w / 8 : 0;
               if (phase == 1) epd2.writeImage(_buffer + offset, _pw_x, dest_ys, _pw_w, dest_ye - dest_ys);
@@ -524,7 +538,7 @@ class GxEPD2_BW : public GxEPD2_GFX_BASE_CLASS
         for (_current_page = 0; _current_page < _pages; _current_page++)
         {
           uint16_t page_ys = _current_page * _page_height;
-          fillScreen(GxEPD_WHITE);
+          fillScreen(_backgroundColor);
           drawCallback(pv);
           epd2.writeImageForFullRefresh(_buffer, 0, page_ys, WIDTH, gx_uint16_min(_page_height, HEIGHT - page_ys));
         }
@@ -535,7 +549,7 @@ class GxEPD2_BW : public GxEPD2_GFX_BASE_CLASS
           for (_current_page = 0; _current_page < _pages; _current_page++)
           {
             uint16_t page_ys = _current_page * _page_height;
-            fillScreen(GxEPD_WHITE);
+            fillScreen(_backgroundColor);
             drawCallback(pv);
             epd2.writeImageAgain(_buffer, 0, page_ys, WIDTH, gx_uint16_min(_page_height, HEIGHT - page_ys));
           }
@@ -709,7 +723,9 @@ class GxEPD2_BW : public GxEPD2_GFX_BASE_CLASS
     int16_t _current_page;
     uint16_t _pages, _page_height;
     uint16_t _pw_x, _pw_y, _pw_w, _pw_h;
-    BorderColor _borderColor;
+    int _borderColor;
+    int _foregroundColor;
+    int _backgroundColor;
 };
 
 #endif

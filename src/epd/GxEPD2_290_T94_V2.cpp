@@ -355,8 +355,7 @@ void GxEPD2_290_T94_V2::_InitDisplay()
   _writeCommand(0x11); //data entry mode
   _writeData(0x03);
   _writeCommand(0x3C); //BorderWavefrom
-  if (_borderColor == BorderColor::BLACK) {
-
+  if (_borderColor == GxEPD_BLACK) {
   _writeData(0x00);
   } else {
   _writeData(0x05);
