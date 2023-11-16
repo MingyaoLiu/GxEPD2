@@ -28,6 +28,7 @@ GxEPD2_EPD::GxEPD2_EPD(int16_t cs, int16_t dc, int16_t rst, int16_t busy, int16_
   _power_is_on = false;
   _using_partial_mode = false;
   _hibernating = false;
+  _init_display_done = false;
   _reset_duration = 10;
   _busy_callback = 0;
   _busy_callback_parameter = 0;
@@ -54,6 +55,7 @@ void GxEPD2_EPD::init(uint32_t serial_diag_bitrate, bool initial, uint16_t reset
   _power_is_on = false;
   _using_partial_mode = false;
   _hibernating = false;
+  _init_display_done = false;
   _reset_duration = reset_duration;
   if (serial_diag_bitrate > 0)
   {
@@ -62,13 +64,15 @@ void GxEPD2_EPD::init(uint32_t serial_diag_bitrate, bool initial, uint16_t reset
   }
   if (_cs >= 0)
   {
-    digitalWrite(_cs, HIGH);
+    digitalWrite(_cs, HIGH); // preset (less glitch for any analyzer)
     pinMode(_cs, OUTPUT);
+    digitalWrite(_cs, HIGH); // set (needed e.g. for RP2040)
   }
   if (_dc >= 0)
   {
-    digitalWrite(_dc, HIGH);
+    digitalWrite(_dc, HIGH); // preset (less glitch for any analyzer)
     pinMode(_dc, OUTPUT);
+    digitalWrite(_dc, HIGH); // set (needed e.g. for RP2040)
   }
   _reset();
   if (_busy >= 0)
@@ -118,14 +122,16 @@ void GxEPD2_EPD::_reset()
     {
       digitalWrite(_rst, LOW);
       pinMode(_rst, OUTPUT);
+      digitalWrite(_rst, LOW);
       delay(_reset_duration);
       pinMode(_rst, INPUT_PULLUP);
       delay(_reset_duration > 10 ? _reset_duration : 10);
     }
     else
     {
-      digitalWrite(_rst, HIGH); // NEEDED for Waveshare "clever" reset circuit, power controller before reset pulse
+      digitalWrite(_rst, HIGH); // NEEDED for Waveshare "clever" reset circuit, power controller before reset pulse, preset (less glitch for any analyzer)
       pinMode(_rst, OUTPUT);
+      digitalWrite(_rst, HIGH); // NEEDED for Waveshare "clever" reset circuit, power controller before reset pulse, set (needed e.g. for RP2040)
       delay(10); // NEEDED for Waveshare "clever" reset circuit, at least delay(2);
       digitalWrite(_rst, LOW);
       delay(_reset_duration);
